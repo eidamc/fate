@@ -3,7 +3,8 @@ project(fate C)
 
 add_compile_options(-g -Wall -Wextra -O2)
 
-add_definitions(-DFATE-DATA-DIR="${CMAKE_INSTALL_PREFIX}/share/fate")
+add_definitions(-DFATE_DATA_DIR="${CMAKE_INSTALL_PREFIX}/share/fate")
+add_definitions(-DFATE_VERSION="1.0.0")
 
 add_executable(fate src/fate.c)
 
