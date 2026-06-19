@@ -37,16 +37,30 @@ struct process_info {
         char name[64];
 };
 
+const char *filenames[] = {
+        "subject.txt",
+        "action.txt",
+        "target.txt",
+        "advice.txt"
+};
+
+const char *filenames_dat[] = {
+        "subject.txt.dat",
+        "action.txt.dat",
+        "target.txt.dat",
+        "advice.txt.dat"
+};
+
 struct option flags[] = {
-        { "version", no_argument, 0, 'v'},
-        { "help", no_argument, 0, 'h'},
-        { "predict", required_argument, 0, 'p'},
-        { 0, 0, 0, 0}
+        { "version", no_argument, 0, 'v' },
+        { "help", no_argument, 0, 'h' },
+        { "predict", required_argument, 0, 'p' },
+        { 0, 0, 0, 0 }
 };
 
 static int get_process_info(struct process_info *info)
 {
-        char path[64];
+        char path[32];
         FILE *f;
         int ret;
 
@@ -73,11 +87,12 @@ static int get_process_info(struct process_info *info)
         return 0;
 }
 
-int get_dat_byte_index(char * file, int rand_inx)
+int get_rand_dat_byte_index(const char * file)
 {
         uint32_t ver, numstr, longlen, shortlen, flags;
         uint32_t start_byte;
         uint32_t *offsets;
+        int rand_inx;
         char path[32] = {0};
         char delim;
 
@@ -110,6 +125,7 @@ int get_dat_byte_index(char * file, int rand_inx)
 
         fread(offsets, sizeof(uint32_t), numstr + 1, f);
 
+        rand_inx = rand() % numstr;
         start_byte = __builtin_bswap32(offsets[rand_inx]);
 
         free(offsets);
@@ -118,7 +134,7 @@ int get_dat_byte_index(char * file, int rand_inx)
         return start_byte;
 }
 
-int read_and_write_from_file(char *filename, int start_byte)
+int read_and_print_from_file(const char *filename, int start_byte)
 {
         char path[32] = {0};
         char c;
@@ -131,24 +147,46 @@ int read_and_write_from_file(char *filename, int start_byte)
 
         fseek(f, start_byte, SEEK_SET);
 
-        while ((c = fgetc(f)) != '@')
+        while ((c = fgetc(f)) != '\n')
                 putchar(c);
 
         fclose(f);
         return 0;
 }
 
+void get_daily_fortune()
+{
+       int byte_inx;
+
+       for (int i = 0; i < 4; i++) {
+               if (i == 3)
+                       printf("\n\U0001F52E ");
+
+               byte_inx = get_rand_dat_byte_index(filenames_dat[i]);
+               read_and_print_from_file(filenames[i], byte_inx);
+               putchar(' ');
+       }
+
+       putchar('\n');
+}
+
+void get_syscall()
+{
+        int byte_inx;
+
+        byte_inx = get_rand_dat_byte_index("syscalls.txt.dat");
+        read_and_print_from_file("syscalls.txt", byte_inx);
+}
+
 static void print_result(struct process_info *info)
 {
-        int byte_index;
-        printf("\U0001F52E Ah, %s, a wise entity on this silicon plane.\n", info->name);
-        printf("\U0001F52E Born in the epoch %lld.\n", info->start_time);
+        printf("\U0001F52E DAILY HOROSCOPE FOR: %s\n\U0001F52E ", info->name);
+        get_daily_fortune();
         printf("\U0001F52E Lucky syscall: ");
-        byte_index = get_dat_byte_index("syscalls.txt.dat", rand() % 414);
-        read_and_write_from_file("syscalls.txt", byte_index);
-        printf("\U0001F52E Unlucky syscall: ");
-        byte_index = get_dat_byte_index("syscalls.txt.dat", rand() % 414);
-        read_and_write_from_file("syscalls.txt", byte_index);
+        get_syscall();
+        printf("\n\U0001F52E Unlucky syscall: ");
+        get_syscall();
+        putchar('\n');
 }
 
 /*
