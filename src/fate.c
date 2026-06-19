@@ -179,7 +179,7 @@ void get_syscall()
         read_and_print_from_file("syscalls.txt", byte_inx);
 }
 
-static void print_result(struct process_info *info)
+static void print_fortune(struct process_info *info)
 {
         printf("\U0001F52E DAILY HOROSCOPE FOR: %s\n\U0001FA84 ", info->name);
         get_daily_fortune();
@@ -192,7 +192,6 @@ static void print_result(struct process_info *info)
 
 /*
  * Fowler-No-Voll hash implementation
- *
  */
 unsigned int get_fnv_hash(int pid, int year, int month, int day)
 {
@@ -215,8 +214,10 @@ int main(int argc, char **argv)
         struct process_info info;
         struct tm *tm;
         time_t t;
+        int compat_flag = 0;
         int entropy_flag = 0;
         int options_inx = 0;
+        int pid_to_check;
         int option;
         int ret;
         
@@ -233,6 +234,10 @@ int main(int argc, char **argv)
                 case 'p':
                         info.pid = atoi(optarg);
                         break;
+                case 'c':
+                        compat_flag = 1;
+                        pid_to_check = atoi(optarg);
+                        break;
                 case 'h':
                 default:
                         printf("Usage: fate [-hvp] [PID_VALUE]\n");
@@ -242,6 +247,9 @@ int main(int argc, char **argv)
 
         if (optind < argc)
                 info.pid = atoi(argv[optind]);
+        
+        if (argc == 1)
+                info.pid = getppid();
 
         ret = get_process_info(&info);
         if (ret) {
@@ -260,7 +268,7 @@ int main(int argc, char **argv)
                       + entropy_rand);
         }
 
-        print_result(&info);
+        print_fortune(&info);
 
         return 0;
 }
