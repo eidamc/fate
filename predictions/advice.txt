@@ -1,0 +1,13 @@
+Expect sudden and violent latency.
+%
+This is a time for graceful degradation. Call exit(0).
+%
+Guard your pointers; dangling references will be punished.
+%
+Flush your buffers immediately, before it is too late.
+%
+Do not attempt to call SIGTERM today.
+%
+Seek refuge in a sleep() state until the load average drops.
+%
+A context switch is inevitable. Close your eyes and yield.

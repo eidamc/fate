@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <getopt.h>
 #include <locale.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,16 +37,30 @@ struct process_info {
         char name[64];
 };
 
+const char *filenames[] = {
+        "subject.txt",
+        "action.txt",
+        "target.txt",
+        "advice.txt"
+};
+
+const char *filenames_dat[] = {
+        "subject.txt.dat",
+        "action.txt.dat",
+        "target.txt.dat",
+        "advice.txt.dat"
+};
+
 struct option flags[] = {
-        { "version", no_argument, 0, 'v'},
-        { "help", no_argument, 0, 'h'},
-        { "predict", required_argument, 0, 'p'},
-        { 0, 0, 0, 0}
+        { "version", no_argument, 0, 'v' },
+        { "help", no_argument, 0, 'h' },
+        { "predict", required_argument, 0, 'p' },
+        { 0, 0, 0, 0 }
 };
 
 static int get_process_info(struct process_info *info)
 {
-        char path[64];
+        char path[32];
         FILE *f;
         int ret;
 
@@ -72,39 +87,106 @@ static int get_process_info(struct process_info *info)
         return 0;
 }
 
-static char* get_syscall()
+int get_rand_dat_byte_index(const char * file)
 {
-        char line[32] = {0};
-        FILE *f;
-        
-        int inx = rand() % (414);
+        uint32_t ver, numstr, longlen, shortlen, flags;
+        uint32_t start_byte;
+        uint32_t *offsets;
+        int rand_inx;
+        char path[32] = {0};
+        char delim;
 
-        f = fopen(FATE_DATA_DIR "syscalls.txt", "r");
+        snprintf(path, sizeof(path), FATE_DATA_DIR "/%s", file);
+
+        FILE *f = fopen(path, "r");
         if (!f)
-                return NULL;
+                return -ENOENT;
 
-        for (int i = 0; i < inx; i++)
-                fgets(line, sizeof(line), f);
-        
+        fread(&ver, sizeof(uint32_t), 1, f);
+        fread(&numstr, sizeof(uint32_t), 1, f);
+        fread(&longlen, sizeof(uint32_t), 1, f);
+        fread(&shortlen, sizeof(uint32_t), 1, f);
+        fread(&flags, sizeof(uint32_t), 1, f);
+        fread(&delim, sizeof(char), 1, f);
+
+        ver = __builtin_bswap32(ver);
+        numstr = __builtin_bswap32(numstr);
+        longlen = __builtin_bswap32(longlen);
+        shortlen = __builtin_bswap32(shortlen);
+        flags = __builtin_bswap32(flags);
+
+        fseek(f, 24, SEEK_SET);
+
+        offsets = malloc((numstr + 1) * sizeof(uint32_t));
+        if (!offsets) {
+                fclose(f);
+                return -ENOMEM;
+        }
+
+        fread(offsets, sizeof(uint32_t), numstr + 1, f);
+
+        rand_inx = rand() % numstr;
+        start_byte = __builtin_bswap32(offsets[rand_inx]);
+
+        free(offsets);
         fclose(f);
 
-        line[strcspn(line, "\n")] = '\0';
+        return start_byte;
+}
 
-        return strdup(line);
+int read_and_print_from_file(const char *filename, int start_byte)
+{
+        char path[32] = {0};
+        char c;
+
+        snprintf(path, sizeof(path), FATE_DATA_DIR "/%s", filename);
+
+        FILE *f = fopen(path, "r");
+        if (!f)
+                return -ENOENT;
+
+        fseek(f, start_byte, SEEK_SET);
+
+        while ((c = fgetc(f)) != '\n')
+                putchar(c);
+
+        fclose(f);
+        return 0;
+}
+
+void get_daily_fortune()
+{
+       int byte_inx;
+
+       for (int i = 0; i < 4; i++) {
+               if (i == 3)
+                       printf("\n\U0001F52E ");
+
+               byte_inx = get_rand_dat_byte_index(filenames_dat[i]);
+               read_and_print_from_file(filenames[i], byte_inx);
+               putchar(' ');
+       }
+
+       putchar('\n');
+}
+
+void get_syscall()
+{
+        int byte_inx;
+
+        byte_inx = get_rand_dat_byte_index("syscalls.txt.dat");
+        read_and_print_from_file("syscalls.txt", byte_inx);
 }
 
 static void print_result(struct process_info *info)
 {
-        char *lucky_call = get_syscall();
-        char *unlucky_call = get_syscall();
-
-        printf("\U0001F52E Ah, %s, a wise entity on this silicon plane.\n", info->name);
-        printf("\U0001F52E Born in the epoch %lld.\n", info->start_time);
-        printf("\U0001F52E Lucky syscall: %s.\n", lucky_call);
-        printf("\U0001F52E Unlucky syscall: %s.\n", unlucky_call);
-
-        free(lucky_call);
-        free(unlucky_call);
+        printf("\U0001F52E DAILY HOROSCOPE FOR: %s\n\U0001F52E ", info->name);
+        get_daily_fortune();
+        printf("\U0001F52E Lucky syscall: ");
+        get_syscall();
+        printf("\n\U0001F52E Unlucky syscall: ");
+        get_syscall();
+        putchar('\n');
 }
 
 /*

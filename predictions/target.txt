@@ -1,0 +1,13 @@
+your highest-address heap allocations.
+%
+the standard output buffer.
+%
+your shared memory segments.
+%
+the execution window of CPU Core 0.
+%
+your oldest open file descriptor.
+%
+the deeply nested recursive stacks.
+%
+your unhandled signal masks.

@@ -1,0 +1,15 @@
+The OOM-Killer
+%
+A rogue hardware interrupt
+%
+The Kernel Scheduler
+%
+A forgotten zombie child
+%
+Your Parent Process
+%
+The Init Daemon
+%
+A detached background thread
+%
+The Page Fault Handler
