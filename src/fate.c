@@ -57,6 +57,7 @@ struct option flags[] = {
         { "help", no_argument, 0, 'h' },
         { "predict", required_argument, 0, 'p' },
         { "entropy", no_argument, 0, 'e' },
+        { "tarot", no_argument, 0, 't' },
         { 0, 0, 0, 0 }
 };
 
@@ -226,6 +227,7 @@ int main(int argc, char **argv)
         unsigned int entropy_rand;
         struct tm *tm;
         time_t t;
+        int tarot_flag = 0;
         int entropy_flag = 0;
         int options_inx = 0;
         int option;
@@ -233,7 +235,7 @@ int main(int argc, char **argv)
         
         setlocale(LC_ALL, "");
 
-        while ((option = getopt_long(argc, argv, "p:hve", flags, &options_inx)) != -1) {
+        while ((option = getopt_long(argc, argv, "p:hvet", flags, &options_inx)) != -1) {
                 switch (option) {
                 case 'e':
                         entropy_flag = 1;
@@ -243,6 +245,9 @@ int main(int argc, char **argv)
                         return 0;
                 case 'p':
                         info.pid = atoi(optarg);
+                        break;
+                case 't':
+                        tarot_flag = 1;
                         break;
                 case 'h':
                 default:
@@ -272,6 +277,11 @@ int main(int argc, char **argv)
                 getentropy(&entropy_rand, sizeof(entropy_rand));
                 srand(get_fnv_hash(info.pid, tm->tm_year, tm->tm_mon, tm->tm_mday)
                       + entropy_rand);
+        }
+
+        if (tarot_flag) {
+                print_daily_tarot();
+                return 0;
         }
 
         print_fortune(&info);
