@@ -25,6 +25,8 @@
 
 #define FATE_TAROT_CARDS_NUM 22
 
+#define NORMALISATION_DIGITS 6
+
 #define FNV_PRIME 16777619
 #define FNV_OFFSET_BASIS 2166136261u
 
@@ -217,6 +219,34 @@ unsigned int get_fnv_hash(int pid, int year, int month, int day)
         }
         
         return hash;
+}
+
+unsigned int get_normalised_hash(const unsigned int hash)
+{
+        if (hash == 0) {
+                return 0;
+        }
+
+        //get # digits
+        unsigned int temp = hash;
+        int total_digits = 0;
+        while (temp > 0) {
+                total_digits++;
+                temp /= 10;
+        }
+
+        if (NORMALISATION_DIGITS >= total_digits) {
+                return hash;
+        }
+
+        //division to strip
+        const int digits_to_remove = total_digits - NORMALISATION_DIGITS;
+        unsigned int divisor = 1;
+        for (int i = 0; i < digits_to_remove; i++) {
+                divisor *= 10;
+        }
+
+        return hash / divisor;
 }
 
 int main(int argc, char **argv)
