@@ -4,32 +4,7 @@
 A joke program providing alternative, spiritually (in)accurate diagnostics for Linux
 PIDs.
 
-## Example output
-```bash
-🔮 DAILY HOROSCOPE FOR: (bash)
-🪄 A detached background thread has cast a deep shadow over your unhandled signal masks. 
-🪄 This is a time for graceful degradation. Call exit(0). 
-✨ Lucky syscall: readdir()
-✨ Unlucky syscall: lgetxattr()
-🃏 Associated tarot card:
-.-----------------------.
-| XVII.                 |
-|                       |
-|           .           |
-|       .  \|/  .       |
-|         --*--         |
-|       .  /|\  .       |
-|           '           |
-|           O           |
-|         \_|_/         |
-|        U  |  U        |
-|       | ~/ \~ |~~~    |
-|       "       "~~~    |
-|                       |
-|                       |
-|       THE STAR        |
-'-----------------------'
-```
+![Example usage](img/gif.gif)
 
 ## What and especially why?
 
