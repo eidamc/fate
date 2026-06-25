@@ -296,6 +296,15 @@ unsigned int* get_standard_tensor()
         return tensor;
 }
 
+unsigned int hash_couple_to_scalar_product(unsigned const int hash1, unsigned const int hash2)
+{
+        const unsigned int normalised_hash1 = get_normalised_hash(hash1);
+        const unsigned int normalised_hash2 = get_normalised_hash(hash2);
+        const unsigned int* vector1 = normalised_hash_to_vector(normalised_hash1);
+        const unsigned int* vector2 = normalised_hash_to_vector(normalised_hash2);
+        return abstract_scalar_product(vector1, vector2, get_standard_tensor());
+}
+
 
 
 int main(int argc, char **argv)
