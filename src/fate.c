@@ -282,6 +282,21 @@ unsigned int abstract_scalar_product(unsigned const int* a, unsigned const int* 
         return result;
 }
 
+unsigned int* get_standard_tensor()
+{
+        unsigned int* tensor = calloc(NORMALISATION_DIGITS * NORMALISATION_DIGITS, sizeof(unsigned int));
+
+        if (tensor == NULL) {
+                return nullptr;
+        }
+        for (unsigned int i = 0; i < NORMALISATION_DIGITS; i++) {
+                tensor[i * NORMALISATION_DIGITS + i] = 1;
+        }
+
+        return tensor;
+}
+
+
 
 int main(int argc, char **argv)
 {
