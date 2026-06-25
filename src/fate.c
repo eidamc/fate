@@ -26,7 +26,6 @@
 #define FATE_TAROT_CARDS_NUM 22
 
 #define NORMALISATION_DIGITS 6
-#define STANDARD_METRIC_TENSOR {{1,0}{0,1}}
 
 #define FNV_PRIME 16777619
 #define FNV_OFFSET_BASIS 2166136261u
@@ -305,7 +304,24 @@ unsigned int hash_couple_to_scalar_product(unsigned const int hash1, unsigned co
         return abstract_scalar_product(vector1, vector2, get_standard_tensor());
 }
 
-
+void print_relationship_advice(unsigned int const product)
+{
+        switch (product) {
+                case 1:
+                        printf("Wow, these processes are made for each other! Great future lies ahead of their magical bond.");
+                        break;
+                case 0:
+                        printf("These processes are very different, yet somehow they complement each other. Their synergy is interesting.");
+                        break;
+                case -1:
+                        //this cannot happen right now because of unsigned values, decide how to randomise later
+                        printf("STOP RIGHT NOW! THESE PROCESSES ARE ABSOLUTELY UNPAIRABLE, SIGKILL RECOMMENDED ASAP!");
+                        break;
+                default:
+                        printf("Hmmm, these processes are not so distant, their future is unclear though, try again on the next lunar cycle.");
+                        break;
+        }
+}
 
 int main(int argc, char **argv)
 {
