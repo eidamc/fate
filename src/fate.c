@@ -270,6 +270,17 @@ unsigned int* normalised_hash_to_vector(unsigned int hash)
         return arr;
 }
 
+unsigned int abstract_scalar_product(unsigned const int* a, unsigned const int* b, unsigned const int* tensor)
+{
+        unsigned int result = 0;
+        for (int i = 0; i < NORMALISATION_DIGITS; i++) {
+                for (int j = 0; j < NORMALISATION_DIGITS; j++) {
+                        result += a[i] * tensor[i * NORMALISATION_DIGITS + j] * b[j];
+                }
+        }
+        return result;
+}
+
 
 int main(int argc, char **argv)
 {
